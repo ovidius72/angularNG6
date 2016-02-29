@@ -22,7 +22,7 @@ var resolveTo = function (resolvePath) {
   return function (glob) {
     glob = glob || '';
     return path.resolve(path.join(root, resolvePath, glob));
-  }
+  };
 };
 
 var resolveToApp = resolveTo('app'); // app/{glob}
@@ -33,7 +33,7 @@ var paths = {
   css: resolveToApp('**/*.css'),
   scss: resolveToApp('**/*.scss'),
   sass: resolveToApp('**/*.sass'),
-  mainSass : path.join(assets, 'sass', 'base.sass'),
+  mainSass: path.join(assets, 'sass', 'base.sass'),
   html: [
     resolveToApp('**/*.html'),
     path.join(root, 'index.html')
@@ -43,7 +43,7 @@ var paths = {
 };
 
 gulp.task('sass', function () {
-  "use strict";
+  'use strict';
 
   gulp.src([paths.mainSass])
     .pipe(sourcemaps.init())
@@ -61,15 +61,18 @@ gulp.task('sass', function () {
     .pipe(gulp.dest(path.join(assets, 'css')));
 });
 
-
 gulp.task('sass:watch', function () {
-  "use strict";
+  'use strict';
   gulp.watch([paths.sass, paths.scss], ['sass']);
 });
 
 gulp.task('serve', function () {
   'use strict';
-  require('chokidar-socket-emitter')({port: 8081, path: 'client', relativeTo: 'client'});
+  require('chokidar-socket-emitter')({
+    port: 8081, 
+    path: 'client', 
+    relativeTo: 'client'});
+
   serve({
     port: process.env.PORT || 3000,
     open: false,
@@ -100,7 +103,7 @@ gulp.task('build', function () {
         .pipe(ngAnnotate())
         .pipe(uglify())
         .pipe(rename('app.min.js'))
-        .pipe(gulp.dest(paths.dist))
+        .pipe(gulp.dest(paths.dist));
     })
     .then(function () {
       // Inject minified script into index
@@ -114,12 +117,12 @@ gulp.task('build', function () {
 
 gulp.task('cc', function () {
   var cap = function (val) {
-    return val.charAt(0).toUpperCase() + val.slice(1);
-  };
+    return val.charAt(0).toUpperCase() + val.slice(1)
+  }
 
-  var name = yargs.name;
-  var parentPath = yargs.parent || '';
-  var destPath = path.join(resolveToComponents(), parentPath, name);
+  var name = yargs.name
+  var parentPath = yargs.parent || ''
+  var destPath = path.join(resolveToComponents(), parentPath, name)
 
   return gulp.src(paths.blankTemplates)
     .pipe(template({
@@ -127,9 +130,9 @@ gulp.task('cc', function () {
       upCaseName: cap(name)
     }))
     .pipe(rename(function (path) {
-      path.basename = path.basename.replace('temp', name);
+      path.basename = path.basename.replace('temp', name)
     }))
-    .pipe(gulp.dest(destPath));
-});
+    .pipe(gulp.dest(destPath))
+})
 
-gulp.task('default', ['sass', 'sass:watch', 'serve']);
+gulp.task('default', ['sass', 'sass:watch', 'serve'])

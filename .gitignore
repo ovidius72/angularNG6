@@ -2,6 +2,7 @@
 .git
 .idea
 .vscode
+.atomignore
 node_modules
 jspm_packages
 .settings

@@ -2,7 +2,7 @@
 // https://github.com/Workiva/karma-jspm/issues/23
 import angular from 'angular';
 import 'angular-mocks';
-import HomeModule from './home'
+import HomeModule from './home';
 import HomeController from './home.controller';
 import HomeComponent from './home.component';
 import HomeTemplate from './home.html!text';
