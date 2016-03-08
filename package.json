@@ -2,7 +2,14 @@
   "name": "angular-jspm-starter",
   "version": "0.0.1",
   "description": "starter",
-  "dependencies": {},
+  "dependencies": {
+    "boom": "^3.1.2",
+    "good": "^6.6.0",
+    "gulp-nodemon": "^2.0.6",
+    "hapi": "^13.0.0",
+    "inert": "^3.2.0",
+    "joy": "^0.1.1"
+  },
   "scripts": {
     "test": "karma start",
     "postinstall": "jspm install"
@@ -65,5 +72,14 @@
     "streamqueue": "^1.1.1",
     "systemjs": "^0.19.18",
     "yargs": "^3.10.0"
-  }
+  },
+  "main": "Gulpfile.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ovidius72/angularNG6.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ovidius72/angularNG6/issues"
+  },
+  "homepage": "https://github.com/ovidius72/angularNG6#readme"
 }

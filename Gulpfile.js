@@ -12,14 +12,17 @@ var gulp = require('gulp'),
   sass = require('gulp-sass'),
   sassGlob = require('gulp-sass-glob'),
   sourcemaps = require('gulp-sourcemaps'),
+  config = require('./config.js'),
+  nodemon = require('gulp-nodemon'),
   concat = require('gulp-concat');
 
-var root = 'client';
+var root = config.client.path;
+
 var assets = path.join(root, 'app', 'assets');
 
 // helper method to resolveToApp paths
-var resolveTo = function (resolvePath) {
-  return function (glob) {
+var resolveTo = function(resolvePath) {
+  return function(glob) {
     glob = glob || '';
     return path.resolve(path.join(root, resolvePath, glob));
   };
@@ -42,7 +45,7 @@ var paths = {
   dist: path.join(__dirname, 'dist/')
 };
 
-gulp.task('sass', function () {
+gulp.task('sass', function() {
   'use strict';
 
   gulp.src([paths.mainSass])
@@ -53,7 +56,7 @@ gulp.task('sass', function () {
       includePaths: require('node-bourbon').includePaths,
       require: 'susy'
     }))
-    .on('error', function (err) {
+    .on('error', function(err) {
       console.log(err.message);
     })
     .pipe(concat('global.css'))
@@ -61,20 +64,21 @@ gulp.task('sass', function () {
     .pipe(gulp.dest(path.join(assets, 'css')));
 });
 
-gulp.task('sass:watch', function () {
+gulp.task('sass:watch', function() {
   'use strict';
   gulp.watch([paths.sass, paths.scss], ['sass']);
 });
 
-gulp.task('serve', function () {
+gulp.task('client', function() {
   'use strict';
   require('chokidar-socket-emitter')({
-    port: 8081, 
-    path: 'client', 
-    relativeTo: 'client'});
+    port: 8081,
+    path: 'client',
+    relativeTo: 'client'
+  });
 
   serve({
-    port: process.env.PORT || 3000,
+    port: config.client.port || process.env.PORT || 3000,
     open: false,
     files: [].concat(
       [paths.css],
@@ -92,12 +96,30 @@ gulp.task('serve', function () {
   });
 });
 
-gulp.task('build', function () {
+
+gulp.task('server', (cb) => {
+  var started = false;
+  nodemon({
+    script: config.server.script,
+    port: config.server.port,
+    ext: 'js',
+    ignore: ['client', 'node_modules', 'package.json', 'jspm_config.js']
+  }).on('start', () => {
+    //Avoid multiple nodemon restart
+    if (!started) {
+      cb();
+      started = true;
+    }
+  });
+});
+
+
+gulp.task('build', function() {
   var dist = path.join(paths.dist + 'app.js');
   rimraf.sync(path.join(paths.dist, '*'));
   // Use JSPM to bundle our app
   return jspm.bundleSFX(resolveToApp('app'), dist, {})
-    .then(function () {
+    .then(function() {
       // Also create a fully annotated minified copy
       return gulp.src(dist)
         .pipe(ngAnnotate())
@@ -105,7 +127,7 @@ gulp.task('build', function () {
         .pipe(rename('app.min.js'))
         .pipe(gulp.dest(paths.dist));
     })
-    .then(function () {
+    .then(function() {
       // Inject minified script into index
       return gulp.src('client/index.html')
         .pipe(htmlreplace({
@@ -115,24 +137,26 @@ gulp.task('build', function () {
     });
 });
 
-gulp.task('cc', function () {
-  var cap = function (val) {
-    return val.charAt(0).toUpperCase() + val.slice(1)
-  }
+gulp.task('cc', function() {
+  var cap = function(val) {
+    return val.charAt(0).toUpperCase() + val.slice(1);
+  };
 
-  var name = yargs.name
-  var parentPath = yargs.parent || ''
-  var destPath = path.join(resolveToComponents(), parentPath, name)
+  var name = yargs.name;
+  var parentPath = yargs.parent || '';
+  var destPath = path.join(resolveToComponents(), parentPath, name);
 
   return gulp.src(paths.blankTemplates)
     .pipe(template({
       name: name,
       upCaseName: cap(name)
     }))
-    .pipe(rename(function (path) {
-      path.basename = path.basename.replace('temp', name)
+    .pipe(rename(function(path) {
+      path.basename = path.basename.replace('temp', name);
     }))
-    .pipe(gulp.dest(destPath))
-})
+    .pipe(gulp.dest(destPath));
+});
 
-gulp.task('default', ['sass', 'sass:watch', 'serve'])
+gulp.task('serve', ['server', 'client']);
+
+gulp.task('default', ['sass', 'sass:watch', 'serve']);
